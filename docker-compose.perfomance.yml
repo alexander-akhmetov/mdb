@@ -1,0 +1,6 @@
+version: '3'
+
+services:
+  db:
+    build: .
+    command: "/app/mdb -p -k 10000 -c 2>&1 | grep -v 'Adding'"

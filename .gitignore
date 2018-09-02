@@ -1,0 +1,9 @@
+*.mdb
+*.pdf
+idx
+.idx
+*.pprof
+.test
+main
+mdb
+lsmt_data
