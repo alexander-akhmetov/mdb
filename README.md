@@ -1,5 +1,8 @@
 # mdb
 
+[![Build Status](https://travis-ci.org/alexander-akhmetov/mdb.svg?branch=master)](https://travis-ci.org/alexander-akhmetov/mdb)
+[![Go Report Card](https://goreportcard.com/badge/github.com/alexander-akhmetov/mdb)](https://goreportcard.com/report/github.com/alexander-akhmetov/mdb)
+
 A simple key-value storage.
 
 It was created for learning purposes: I wanted to know Go more and create my own small database.
