@@ -1,8 +1,0 @@
-language: go
-
-go_import_path: github.com/alexander-akhmetov/mdb/
-
-go:
-  - "1.11"
-
-script: make test
