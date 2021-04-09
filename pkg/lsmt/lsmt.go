@@ -5,7 +5,6 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -262,7 +261,8 @@ func (s *Storage) restoreSSTables() {
 
 	tablesToRestore := listSSTables(s.Config.ssTablesDir)
 
-	queue := make(chan result, len(tablesToRestore))
+	// since ssTables is nil before here
+	s.ssTables = make([]*ssTable, len(tablesToRestore))
 
 	var wg sync.WaitGroup
 	wg.Add(len(tablesToRestore))
@@ -273,32 +273,16 @@ func (s *Storage) restoreSSTables() {
 		// later we will put this file to the end of the list
 		go func(position int, filename string) {
 			defer wg.Done()
-			t := newSSTable(
+			s.ssTables[position] = newSSTable(
 				&ssTableConfig{
 					filename:       filename,
 					readBufferSize: s.Config.SSTableReadBufferSize,
 				},
 			)
-			queue <- result{table: t, position: position}
 		}(i, file.Name)
 	}
 
 	wg.Wait()
-	close(queue)
-
-	// sort results
-	tables := []result{}
-	for result := range queue {
-		tables = append(tables, result)
-	}
-	sort.Slice(tables, func(i, j int) bool {
-		return tables[i].position < tables[j].position
-	})
-
-	// append results to the result tables list
-	for _, r := range tables {
-		s.ssTables = append(s.ssTables, r.table)
-	}
 
 	log.Println("[DEBUG] initialized sstables:", len(s.ssTables))
 }
