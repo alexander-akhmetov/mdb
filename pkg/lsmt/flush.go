@@ -26,7 +26,14 @@ func (f *flusher) flush() string {
 	}
 	defer file.Close()
 
-	f.memtable.Write(file)
+	_, err = f.memtable.Write(file)
+	if err != nil {
+		log.Panic(err)
+	}
+	err = file.Sync()
+	if err != nil {
+		log.Panic(err)
+	}
 
 	log.Printf("[DEBUG] Removing old append only log file at path=%s", f.memtable.logFilename)
 	err = os.Remove(f.memtable.logFilename)
