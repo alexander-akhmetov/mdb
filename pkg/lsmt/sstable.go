@@ -22,7 +22,7 @@ type ssTable struct {
 	config *ssTableConfig
 }
 
-// listSSTables returns filenames ordered by last modified time (descending)
+// listSSTables returns filenames ordered by last modified time in descending order.
 func listSSTables(dir string) []utils.FileInfo {
 	return utils.ListFilesOrdered(dir, ".sstable")
 }
@@ -55,7 +55,7 @@ func (s *ssTable) Get(key string) (string, bool) {
 	return "", false
 }
 
-// rebuildSparseIndex reads all file and builds initial index
+// rebuildSparseIndex reads the entire file and builds the initial index.
 func (s *ssTable) rebuildSparseIndex() {
 	s.index = rbt.NewRBTree()
 
@@ -82,7 +82,7 @@ func (s *ssTable) rebuildSparseIndex() {
 	}
 }
 
-// newSSTable returns an SSTable instance which can be used to get information from this table
+// newSSTable returns an SSTable instance that can be used to retrieve information from this table.
 func newSSTable(config *ssTableConfig) *ssTable {
 	log.Println("[DEBUG] Initializing a new SSTable instance...")
 	if config.readBufferSize == 0 {

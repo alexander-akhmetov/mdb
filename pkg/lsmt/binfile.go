@@ -10,13 +10,12 @@ import (
 
 const filePermissions = 0600
 
-// binScanner scans binary file and splits data into
-// entry.DBEntry automatically
+// binScanner scans a binary file and automatically splits data into entry.DBEntry.
 type binScanner struct {
 	*bufio.Scanner
 }
 
-// appendBinaryToFile writes key-value in binary format
+// appendBinaryToFile writes key-value pairs in binary format.
 func appendBinaryToFile(filename string, entry *entry.DBEntry) {
 	// todo: move to entry
 	file, err := os.OpenFile(filename, os.O_APPEND|os.O_WRONLY, filePermissions)

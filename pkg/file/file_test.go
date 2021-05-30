@@ -31,7 +31,7 @@ func TestFileStorage(t *testing.T) {
 
 	assert.Equal(t, expContent, content, "File content wrong")
 
-	// now let's read content from this file
+	// Let's read the content of this file
 
 	value, exists := storage.Get(testKey2)
 	assert.Equal(t, testValue2, value, "Wrong value")

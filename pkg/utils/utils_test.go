@@ -22,8 +22,8 @@ func TestTrimKey(t *testing.T) {
 }
 
 func TestListFilesOrdered(t *testing.T) {
-	// test that ListFilesOrdered returns list of files with path
-	// and they are ordered by their name
+	// test that ListFilesOrdered returns a list of paths to the files,
+	// and they are ordered by name
 	testutils.SetUp()
 	defer testutils.Teardown()
 
@@ -39,13 +39,13 @@ func TestListFilesOrdered(t *testing.T) {
 		os.OpenFile(filepath.Join(filesDir, f), os.O_RDONLY|os.O_CREATE, 0600)
 	}
 
-	// expFiles with ordered by last modified time and with full path
+	// expFiles ordered by last modified time and with full path
 	expFiles := []FileInfo{
-		FileInfo{
+		{
 			Name: ".test/list-files-test/another.sstable",
 			Size: 0,
 		},
-		FileInfo{
+		{
 			Name: ".test/list-files-test/file.sstable",
 			Size: 0,
 		},
@@ -54,8 +54,8 @@ func TestListFilesOrdered(t *testing.T) {
 }
 
 func TestListFilesOrderedWithoutSuffix(t *testing.T) {
-	// test that ListFilesOrdered returns list of files with path
-	// and they are ordered by their name
+	// test that ListFilesOrdered returns a list of paths to the files
+	// ordered by name
 	testutils.SetUp()
 	defer testutils.Teardown()
 
@@ -70,17 +70,17 @@ func TestListFilesOrderedWithoutSuffix(t *testing.T) {
 		os.OpenFile(filepath.Join(filesDir, f), os.O_RDONLY|os.O_CREATE, 0600)
 	}
 
-	// expFiles with ordered by last modified time and with full path
+	// expFiles ordered by last modified time and with full path
 	expFiles := []FileInfo{
-		FileInfo{
+		{
 			Name: ".test/list-files-test/3.sstable",
 			Size: 0,
 		},
-		FileInfo{
+		{
 			Name: ".test/list-files-test/2.sstable",
 			Size: 0,
 		},
-		FileInfo{
+		{
 			Name: ".test/list-files-test/1.txt",
 			Size: 0,
 		},

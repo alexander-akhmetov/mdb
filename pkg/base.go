@@ -1,5 +1,4 @@
 // Package mdb is a simple key-value database
-// license that can be found in the LICENSE file.
 package mdb
 
 import (

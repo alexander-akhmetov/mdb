@@ -16,7 +16,7 @@ import (
 const filePermissions = 0600
 const pidFileName = "mdb.pid"
 
-// GetKeyValueFromString returns key and value from string
+// GetKeyValueFromString returns the key and value from a string.
 func GetKeyValueFromString(line string) (string, string) {
 	splitted := strings.SplitN(line, ";", 2)
 	if len(splitted) != 2 {
@@ -25,14 +25,14 @@ func GetKeyValueFromString(line string) (string, string) {
 	return splitted[0], strings.TrimRight(splitted[1], "\n")
 }
 
-// TrimKey removes key and ";" prefix from line
-// to get value only
+// TrimKey removes the key and ";" prefix from the line
+// to obtain only the value.
 func TrimKey(key string, line string) string {
 	return strings.TrimPrefix(line, fmt.Sprintf("%s;", key))
 }
 
-// FindLineByKeyInFile returns the last line which starts with given key and boolean indicator that line has been found
-// if it's false - line has not been found
+// FindLineByKeyInFile returns the last line that starts with the given key and a boolean indicator of whether the line has been found.
+// If false, the line has not been found.
 func FindLineByKeyInFile(filename string, key string) (string, bool) {
 	file, err := os.Open(filename)
 	if err != nil {
@@ -60,7 +60,7 @@ func FindLineByKeyInFile(filename string, key string) (string, bool) {
 	return resultLine, found
 }
 
-// AppendToFile appends given string to a file with given filename
+// AppendToFile appends the given string to a file with the specified filename.
 func AppendToFile(filename string, appendString string) {
 	file, err := os.OpenFile(filename, os.O_APPEND|os.O_WRONLY, filePermissions)
 	if err != nil {
@@ -74,13 +74,13 @@ func AppendToFile(filename string, appendString string) {
 	}
 }
 
-// RecreateFile removes old file and creates a new one
+// RecreateFile removes the old file and creates a new one.
 func RecreateFile(filename string) {
 	os.Remove(filename)
 	CreateFileIfNotExists(filename)
 }
 
-// CreateFileIfNotExists creates file and all dirs if it doesn't exist
+// CreateFileIfNotExists creates the file and all necessary directories if it doesn't exist.
 func CreateFileIfNotExists(filename string) {
 	dir, _ := filepath.Split(filename)
 	CreateDir(dir)
@@ -90,14 +90,14 @@ func CreateFileIfNotExists(filename string) {
 	}
 }
 
-// CreateDir creates dir like `mkdir -p`
+// CreateDir creates a directory similarly to `mkdir -p`.
 func CreateDir(dir string) {
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
 		os.MkdirAll(dir, os.ModePerm)
 	}
 }
 
-// GetFileSize returns file size
+// GetFileSize returns the file size.
 func GetFileSize(filename string) int64 {
 	file, err := os.OpenFile(filename, os.O_APPEND|os.O_WRONLY, filePermissions)
 	if err != nil {
@@ -111,7 +111,7 @@ func GetFileSize(filename string) int64 {
 	return fi.Size()
 }
 
-// ReadLineByOffset reads line from file by given offset
+// ReadLineByOffset reads a line from the file at the given offset.
 func ReadLineByOffset(filename string, offset int64) string {
 	file, err := os.Open(filename)
 	if err != nil {
@@ -128,15 +128,15 @@ func ReadLineByOffset(filename string, offset int64) string {
 	return scanner.Text()
 }
 
-// StartFileDB creates temporary .pid file to lock file usage
+// StartFileDB creates a temporary .pid file to lock file usage.
 func StartFileDB() {
 	CheckAndCreatePIDFile(pidFileName)
 	AppendToFile(pidFileName, fmt.Sprintf("%v", os.Getpid()))
 }
 
-// CheckAndCreatePIDFile checks and creates .pid file if it does not exist
-// if it exists, it will panic, because if you use it only one
-// instance of the DB must be started at the same time
+// CheckAndCreatePIDFile checks for the presence of a .pid file and creates it if it does not exist.
+// If it exists, the function will panic, because only one
+// instance of the DB should be running at the same time.
 func CheckAndCreatePIDFile(path string) {
 	if _, err := os.Stat(path); err == nil {
 		log.Panicf("Can't start the database: %s file already exists!", path)
@@ -144,12 +144,12 @@ func CheckAndCreatePIDFile(path string) {
 	CreateFileIfNotExists(path)
 }
 
-// StopFileDB removes temporary .pid file
+// StopFileDB removes the temporary .pid file.
 func StopFileDB() {
 	RemovePIDFile(pidFileName)
 }
 
-// RemovePIDFile removes .pid file
+// RemovePIDFile removes the .pid file.
 func RemovePIDFile(path string) {
 	err := os.Remove(path)
 	if err != nil {
@@ -167,8 +167,8 @@ type FileInfo struct {
 	Size int64
 }
 
-// ListFilesOrdered returns filenames ordered by their name (descending)
-// files *MUST* be with integer names
+// ListFilesOrdered returns filenames ordered by their name in descending order.
+// Files must have integer names.
 func ListFilesOrdered(dir string, filterBySuffix string) []FileInfo {
 	files, err := ioutil.ReadDir(dir)
 	if err != nil {

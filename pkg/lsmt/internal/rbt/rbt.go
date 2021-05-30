@@ -14,7 +14,7 @@ func NewRBTree() *RedBlackTree {
 	return &RedBlackTree{rbt.NewWithStringComparator()}
 }
 
-// GetClosest returns value of by key or the closest minimal one
+// GetClosest returns the value of the key or the closest minimal one.
 func (tree *RedBlackTree) GetClosest(value string) int {
 	return tree.getClosestValue(tree.Root, value, -1)
 }

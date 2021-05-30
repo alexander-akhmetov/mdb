@@ -11,7 +11,7 @@ import (
 
 func TestMemtableFlush(t *testing.T) {
 	// test that when we flush memtable to disk it writes it correctly
-	// and keys are sorted
+	// and the keys are sorted
 	testutils.SetUp()
 	defer testutils.Teardown()
 
@@ -54,23 +54,23 @@ func TestSize(t *testing.T) {
 
 	m := newMemtable(".test/log")
 
-	// at first size is zero
+	// at first the size is zero
 	assert.Equal(t, int64(0), m.Size())
 
 	m.Set("k1", "v1")
 	assert.Equal(t, int64(1), m.Size())
 
-	// let's add the same key, size must be the same
+	// add the same key, the size must be the same
 	m.Set("k1", "v1")
 	assert.Equal(t, int64(1), m.Size())
 
-	// new key: size must be changed
+	// a new key: the size must change
 	m.Set("k2", "v2")
 	assert.Equal(t, int64(2), m.Size())
 }
 
 func TestAppendOnlyLog(t *testing.T) {
-	// test that memtable will save correct data to append only log
+	// test that memtable saves correct data to append only log
 	testutils.SetUp()
 	defer testutils.Teardown()
 
@@ -88,7 +88,7 @@ func TestAppendOnlyLog(t *testing.T) {
 	data = testutils.ReadFileBinary(f)
 	assert.Equal(t, expData, data)
 
-	// now let's dump this data: it must be the same
+	// dump this data: it must be the same
 	df := ".test/dump"
 	file, _ := os.OpenFile(df, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0600)
 	_, err := m.Write(file)
@@ -104,7 +104,7 @@ func TestAppendOnlyLog(t *testing.T) {
 	data = testutils.ReadFileBinary(f)
 	assert.Equal(t, expData, data)
 
-	// now let's dump this data again:
+	// dump this data again:
 	// it must save only the last value for the key
 	os.Remove(df)
 	file, _ = os.OpenFile(df, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0600)

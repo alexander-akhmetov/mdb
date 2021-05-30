@@ -16,13 +16,13 @@ import (
 const defaultMaxMemtableSize int64 = 256
 const defaultMaxCompactFileSize int64 = 1024 * 1024 * 10
 
-// locks access to change the memtablesFlushQueue
+// Prevents changing the memtablesFlushQueue
 var flushMutex = &sync.Mutex{}
 
-// locks access to change the ssTables list
+// Prevents changing the ssTables list
 var ssTablesListMutex = &sync.Mutex{}
 
-// locks access to search in the ssTables list
+// Locks access to the ssTables list
 var ssTablesAccessMutex = &sync.Mutex{}
 
 // StorageConfig holds all configuration of the storage
@@ -42,7 +42,7 @@ type StorageConfig struct {
 	tmpDir               string
 }
 
-// Storage holds all in a file
+// Storage holds data in ss tables
 type Storage struct {
 	Config StorageConfig
 
@@ -52,13 +52,13 @@ type Storage struct {
 	memtablesFlushQueue []*memtable
 }
 
-// Set saves given key and value
+// Set saves the given key and value.
 func (s *Storage) Set(key string, value string) {
 	s.flushmemtableIfNeeded()
 	s.memtable.Set(key, value)
 }
 
-// flushmemtableIfNeeded checks if memtable is bigger than limit size and puts it to the flush queue if yes
+// flushmemtableIfNeeded checks if the memtable is bigger than the limit size and puts it into the flush queue if yes.
 func (s *Storage) flushmemtableIfNeeded() {
 	if s.memtable.Size() > s.Config.MaxMemtableSize {
 		log.Println("[DEBUG] memtable is too big: putting it to flush queue")
@@ -79,9 +79,9 @@ func (s *Storage) flushmemtableIfNeeded() {
 	}
 }
 
-// appendToFlushQueue inserts wmemtable to a memtablesFlushQueue to the first place (prepend)
-// we need to keep memtablesFlushQueue ordered by memtable age (we keep descending order: newest first)
-// so we will check memtables from the beginning if we want to find some key
+// appendToFlushQueue inserts wmemtable into the memtablesFlushQueue at the first place (prepend).
+// We need to keep the memtablesFlushQueue ordered by memtable age (descending order: newest first),
+// so we will check memtables from the beginning if we want to find some key.
 func (s *Storage) appendToFlushQueue(m *memtable) {
 	// we must lock this mutex to obtain exclusive access to the flush queue
 	flushMutex.Lock()
@@ -92,7 +92,7 @@ func (s *Storage) appendToFlushQueue(m *memtable) {
 	s.memtablesFlushQueue = append([]*memtable{m}, s.memtablesFlushQueue...)
 }
 
-// Get returns a value by given key and boolean indicator that key exists
+// Get returns a value for the given key and a boolean indicator of whether the key exists.
 func (s *Storage) Get(key string) (value string, exists bool) {
 	value, exists = s.memtable.Get(key)
 
@@ -109,7 +109,7 @@ func (s *Storage) Get(key string) (value string, exists bool) {
 	return value, exists
 }
 
-// getFromFlushQueue tries to find given key in the flush queue memtables
+// getFromFlushQueue tries to find the given key in the flush queue memtables.
 func (s *Storage) getFromFlushQueue(key string) (string, bool) {
 	value := ""
 	found := false
@@ -127,8 +127,8 @@ func (s *Storage) getFromFlushQueue(key string) (string, bool) {
 	return value, found
 }
 
-// getFromSSTables tries to find given key in the SSTables
-// it searches keys in parallel in all SSTables
+// getFromSSTables tries to find the given key in the SSTables.
+// It searches for keys in parallel in all SSTables.
 func (s *Storage) getFromSSTables(key string) (string, bool) {
 	value := ""
 	found := false
@@ -217,8 +217,8 @@ func (s *Storage) Start() {
 	log.Println("[INFO] Storage ready")
 }
 
-// restoreFlushQueue reads flush queue directory and restores memtables
-// from files (aolog) in this directory to the memtablesFlushQueue
+// restoreFlushQueue reads the flush queue directory and restores memtables
+// from files (aolog) in this directory to the memtablesFlushQueue.
 func (s *Storage) restoreFlushQueue() {
 	log.Println("[DEBUG] Restoring flush queue...")
 	files := utils.ListFilesOrdered(s.Config.memtablesFlushTmpDir, "")
@@ -237,12 +237,12 @@ func (s *Storage) restoreFlushQueue() {
 	log.Println("[DEBUG] Flush queue has been restored with size=", len(s.memtablesFlushQueue))
 }
 
-// initNewMemtable initializes a new memtable for the storage
+// initNewMemtable initializes a new memtable for the storage.
 func (s *Storage) initNewMemtable() {
 	s.memtable = newMemtable(s.Config.aoLogPath)
 }
 
-// createWorkDirs creates necessary directories
+// createWorkDirs creates the necessary directories.
 func (s *Storage) createWorkDirs() {
 	dirs := []string{s.Config.ssTablesDir, s.Config.memtablesFlushTmpDir, s.Config.tmpDir}
 	for _, dir := range dirs {
@@ -251,7 +251,7 @@ func (s *Storage) createWorkDirs() {
 	}
 }
 
-// restoreSSTables reads the directory with SSTables and restores them to the `ssTables` attribute
+// restoreSSTables reads the directory with SSTables and restores them to the `ssTables` attribute.
 func (s *Storage) restoreSSTables() {
 
 	type result struct {
@@ -269,8 +269,8 @@ func (s *Storage) restoreSSTables() {
 
 	// initialize ssTables in parallel
 	for i, file := range tablesToRestore {
-		// files are already ordered by name in descending order,
-		// later we will put this file to the end of the list
+		// Files are already ordered by name in descending order.
+		// Later, we will put this file at the end of the list.
 		go func(position int, filename string) {
 			defer wg.Done()
 			s.ssTables[position] = newSSTable(
@@ -287,24 +287,24 @@ func (s *Storage) restoreSSTables() {
 	log.Println("[DEBUG] initialized sstables:", len(s.ssTables))
 }
 
-// startFlusherProcess starts flusher process which checks
-// if we need to flush some memtable and flushes if needed
+// startFlusherProcess starts the flusher process, which checks
+// if we need to flush some memtable and flushes it if needed.
 func (s *Storage) startFlusherProcess() {
 	log.Println("[DEBUG] Started flusher process")
 	for s.running == true {
-		// lock mutex, so there will be no new memtables added
-		// while we are dumping memtables to disk,
-		// and we will be able to flush all queue and clean it
+		// Lock the mutex so that no new memtables are added
+		// while we are dumping memtables to disk.
+		// This ensures that we can flush the entire queue and clean it.
 		flushMutex.Lock()
 
-		// FIFO: we iterate in reverse order to dump oldest memtables to disk first
-		// it allows us to serve read requests correctly: we search in the main memtable first,
-		// then in the "memtables to flush" queue from top to bottom (newest first)
-		// then in sstables
+		// FIFO: We iterate in reverse order to dump the oldest memtables to disk first.
+		// This allows us to serve read requests correctly: we search in the main memtable first,
+		// then in the "memtables to flush" queue from top to bottom (newest first),
+		// and finally in SSTables.
 		for i := len(s.memtablesFlushQueue) - 1; i >= 0; i-- {
 			f := newFlusher(s.memtablesFlushQueue[i], s.Config.ssTablesDir)
 			filename := f.flush()
-			// it is the newest sstable, so put it to the beginning of the list
+			// It is the newest SSTable, so put it at the beginning of the list.
 			ssTablesListMutex.Lock()
 			newt := newSSTable(
 				&ssTableConfig{
@@ -316,11 +316,11 @@ func (s *Storage) startFlusherProcess() {
 			ssTablesListMutex.Unlock()
 		}
 
-		// clean flush queue, since we flushed all memtables and
-		// mutex don't allow other goroutines to add new items to this queue
+		// Clean the flush queue since we flushed all memtables and
+		// the mutex prevents other goroutines from adding new items to this queue.
 		s.memtablesFlushQueue = []*memtable{}
 
-		// unlock mutex and sleep some time
+		// Unlock the mutex and sleep for some time.
 		flushMutex.Unlock()
 		time.Sleep(time.Millisecond * 100)
 	}
@@ -329,15 +329,15 @@ func (s *Storage) startFlusherProcess() {
 func (s *Storage) startCompactionProcess() {
 	log.Println("[DEBUG] Started compaction process")
 
-	// we need to merge two files together and place a result file to the temporary dir
-	// then we lock ssTables to be sure that we have exclusive access to change it,
-	// and move the result file to the place of the second merged one.
-	// We need to do this because the second file is newer
-	// and even if something will be broken after - we won't lose data.
+	// We need to merge two files together and place the result file in the temporary directory.
+	// Then we lock ssTables to ensure exclusive access to change it,
+	// and move the result file to the location of the second merged one.
+	// We do this because the second file is newer,
+	// and even if something goes wrong, we won't lose data.
 	//
-	// After moving the result file, we can remove the first merged file - we don't need it anymore
-	// And after we can remove it's ssTable instance from the list.
-	// But we already don't use it automatically, since all newer keys are in the newer file
+	// After moving the result file, we can remove the first merged file as we don't need it anymore.
+	// Then we remove its ssTable instance from the list.
+	// However, we already don't use it automatically since all newer keys are in the newer file.
 	for s.running == true {
 		firstMerged, secondMerged, resultFile, isMerged := compact(
 			s.Config.ssTablesDir,
@@ -364,7 +364,7 @@ func (s *Storage) startCompactionProcess() {
 			defer file.Close()
 
 			ssTablesAccessMutex.Lock()
-			// move the result file to place of the second merged
+			// Move the result file to the location of the second merged file.
 			err := os.Rename(resultFile, secondMerged)
 			if err != nil {
 				log.Printf("[ERROR] Can't move merged file from '%s' to '%s': %v", resultFile, secondMerged, err)
@@ -390,14 +390,14 @@ func (s *Storage) startCompactionProcess() {
 			ssTablesListMutex.Unlock()
 			log.Println("[DEBUG] Compaction completed")
 		} else {
-			// if we didn't merge files, let's sleep,
-			// but if we just merged files - we want to check, maybe we need to merge them again
+			// If we didn't merge files, let's sleep.
+			// But if we just merged files, we want to check if we need to merge them again.
 			time.Sleep(time.Millisecond * 100)
 		}
 	}
 }
 
-// findSSTableIndex returns index of an ssTable in the ssTables list
+// findSSTableIndex returns the index of an SSTable in the ssTables list.
 func (s *Storage) findSSTableIndex(filename string) int {
 	index := -1
 

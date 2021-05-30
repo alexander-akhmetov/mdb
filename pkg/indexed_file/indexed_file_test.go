@@ -31,7 +31,7 @@ func TestIndexedFileStorage(t *testing.T) {
 
 	assert.Equal(t, expContent, content, "File content wrong")
 
-	// now let's read content from this file
+	// Let's read the content of this file
 
 	value, exists := storage.Get(testKey)
 	assert.Equal(t, testValue, value, "Wrong value")
@@ -64,12 +64,12 @@ func TestIndexedFileStorageIndexBuild(t *testing.T) {
 	storage.Set(testKey, testValue)
 	storage.Set(testKey2, testValue2)
 
-	// clean index and check it
+	// clean the index and check it
 	storage.index = map[string]int64{}
 	assert.Equal(t, int64(0), storage.index[testKey], "index must be empty")
 	assert.Equal(t, int64(0), storage.index[testKey2], "index must be empty")
 
-	// now let's build index again
+	// build the index again
 	storage.Stop()
 	storage.Start()
 	assert.Equal(t, int64(0), storage.index[testKey], "wrong index offset")

@@ -7,8 +7,8 @@ import (
 )
 
 func TestFindClosestValueInRBTree(t *testing.T) {
-	// GetClosest() should return value by given key
-	// or by closest key (min)
+	// GetClosest() should return the value for the given key
+	// or for the closest key (min).
 	tree := NewRBTree()
 
 	tree.Put("key_a", 0)

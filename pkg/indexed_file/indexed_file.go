@@ -13,13 +13,13 @@ import (
 
 var writeMutex = &sync.Mutex{}
 
-// Storage holds all in a file
+// Storage holds data in a file
 type Storage struct {
 	Filename string
 	index    map[string]int64
 }
 
-// Set saves given key and value
+// Set saves the given key and value.
 func (s *Storage) Set(key string, value string) {
 	writeMutex.Lock()
 	defer writeMutex.Unlock()
@@ -30,7 +30,7 @@ func (s *Storage) Set(key string, value string) {
 	utils.AppendToFile(s.Filename, strToAppend)
 }
 
-// Get returns a value by given key and boolean indicator that key exists
+// Get returns a value for a given key and a boolean indicator of whether the key exists.
 func (s *Storage) Get(key string) (string, bool) {
 	var line string
 	if offset, ok := s.index[key]; ok {
@@ -42,7 +42,7 @@ func (s *Storage) Get(key string) (string, bool) {
 	return "", false
 }
 
-// Start initializes Storage, creates file if needed and rebuilds index
+// Start initializes the Storage, creates the file if needed and rebuilds the index.
 func (s *Storage) Start() {
 	log.Println("[INFO] Starting indexed file storage")
 	utils.StartFileDB()
@@ -52,8 +52,8 @@ func (s *Storage) Start() {
 	log.Println("[DEBUG] Storage: started")
 }
 
-// rebuildIndex reads all file and builds initial index
-// it will be very slow for large files
+// rebuildIndex reads the file and builds an initial index.
+// It is slow for large files.
 func (s *Storage) rebuildIndex() {
 	s.index = map[string]int64{}
 

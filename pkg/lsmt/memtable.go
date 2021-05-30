@@ -16,12 +16,12 @@ var writeMutex = &sync.Mutex{}
 const aoLogReadBufferSize = 4096
 
 type memtable struct {
-	data        map[string]string // in-memory data structure to keep info before saving to disk as SSTable
-	logFilename string            // AOLog: append-only log to restore information in case of crash
-	timestamp   int64             //used for flush process
+	data        map[string]string // In-memory data structure to keep information before saving to disk as SSTable.
+	logFilename string            // AOLog: append-only log to restore information in case of a crash.
+	timestamp   int64             // Used for the flush process.
 }
 
-// set writes informartion to AOLog
+// Set writes information to AOLog.
 func (m *memtable) Set(key string, value string) {
 	m.appendToLog(key, value)
 	m.data[key] = value
@@ -40,7 +40,7 @@ func (m *memtable) appendToLog(key string, value string) {
 	})
 }
 
-// get returns value of a key from memtable
+// Get returns the value of a key from the memtable.
 func (m *memtable) Get(key string) (string, bool) {
 	if value, ok := m.data[key]; ok {
 		return value, true
@@ -49,14 +49,14 @@ func (m *memtable) Get(key string) (string, bool) {
 	return "", false
 }
 
-// getSize returns size of a memtable in bytes
-// it's needed to decide if we need to dump this memtable to a disk as SSTable or not
+// Size returns the size of a memtable in bytes.
+// It's needed to decide if we need to dump this memtable to disk as an SSTable or not.
 func (m *memtable) Size() int64 {
 	return int64(len(m.data))
 }
 
-// restoreFromLog reads AOLog file and restores all information back to the memtable
-// we use it in case of crash or when server was stopped with some informartion in the memtable
+// restoreFromLog reads the AOLog file and restores all information back to the memtable.
+// We use it in case of a crash or when the server was stopped with some information in the memtable.
 func (m *memtable) restoreFromLog() {
 	file, err := os.OpenFile(m.logFilename, os.O_RDONLY, 0600)
 	if os.IsNotExist(err) {
@@ -108,7 +108,7 @@ func (m *memtable) Write(wr io.Writer) (n int, err error) {
 	return n, err
 }
 
-// newMemtable returns new instance of a writer
+// newMemtable returns a new instance of a writer.
 func newMemtable(aoLogFileName string) *memtable {
 	m := &memtable{
 		data:        map[string]string{},

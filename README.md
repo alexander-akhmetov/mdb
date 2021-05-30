@@ -4,9 +4,9 @@
 
 A simple key-value storage.
 
-It was created for learning purposes: I wanted to know Go more and create my own small database.
+It was created for learning purposes: I wanted to learn a bit of Go and create my own small database.
 
-Not for production usage. :)
+Not intended for production use. :)
 
 Implemented storage types:
 
@@ -17,7 +17,7 @@ Implemented storage types:
 
 ## Usage
 
-By default it uses `lsmt.Storage`, but you can change it in the [main.go](db/main.go).
+By default it uses `lsmt.Storage`, but you can change this in the [main.go](db/main.go).
 
 ### Command-line interface
 
@@ -68,36 +68,29 @@ func main() {
 }
 ```
 
-More about all this configuration options you can read in the `lsmt.Storage` section below.
+More information about all these configuration options can be found in the `lsmt.Storage` section below.
 
 ## Internals
 
-The database supports four different storage types.
+The database supports different storage types.
 
 ### memory.Storage
 
-It's a simple hash map which holds all in the memory. Nothing else :)
+It's a simple hash map that holds everything in memory.
 
 ### file.Storage
 
-It stores all information in the file. When you add a new entry, it just appends key and value to the file. So it's very fast to add new information.
-But when you are trying to get the key, it scans the whole file (and from the beginning, not from the end) to find the latest key. So reading is slow.
+It stores all information in a file. When you add a new entry, it simply appends the key and value to the file. So it's very fast to add new information. However, when you try to retrieve a key, it scans the entire file (starting from the beginning, not the end) to find the latest key. Therefore, reading is slow.
 
 ### indexedfile.Storage
 
-It is a `FileStorage` with a simple index (hash map). When you add a new key, it saves offset in bytes to the map in the memory. To process `get` command it checks the index, finds offset in bytes and reads only a piece of the file. Writing and reading are fast, but you need a lot of memory to keep all keys in it.
+This is a FileStorage with a simple index (hash map). When you add a new key, it saves the offset in bytes to the map in memory. To process the get command, it checks the index, finds the offset in bytes, and reads only a piece of the file. Writing and reading are fast, but you need a lot of memory to keep all keys in it.
 
 ### lsmt.Storage
 
-The most interesting part of this project. :)
+It stores all data in sorted string tables (SSTables), which are essentially binary files. It supports sparse indexes, so you don't need a lot of memory to store all your keys like in indexedfile.Storage.
 
-It's something similar to Google's LevelDB or Facebook's RocksDB.
-It keeps all data in sorted string tables (SSTable) which are basically binary files.
-Supports sparse indexes, so you don't need a lot of memory to store all your keys like in `indexedfile.Storage`.
-
-But it will be slower than `indexedfile.Storage`, because it uses a red-black tree to store sparse index and it checks all SSTables when you retrieve a value because it can't say that it doesn't have this key without checking the SSTables on a disk.
-
-To make it faster in this situation, we can use a Bloom filter.
+However, it will be slower than indexedfile.Storage because it uses a red-black tree to store a sparse index and checks all SSTables when you retrieve a value. This is because it can't determine whether it has this key without checking the SSTables on disk. It could probably use a Bloom filter for that.
 
 ```none
                      +------------+
@@ -144,7 +137,7 @@ Main parts:
 * Flush queue (list of memtables)
 * Flusher (dumps a memtable to a disk)
 * SSTables storage (main storage for the data)
-* Compaction (background process to remove old keys which were updated)
+* Compaction (background process to remove old keys that were updated)
 
 #### GET process
 
@@ -153,7 +146,7 @@ Main parts:
 3. Check SSTables
 
 It checks all these parts in this order to be sure that it returns the latest version of the key.
-Each SSTable has its own index (red-black tree). It can be sparse: it will not keep each key-offset pair in the index,
+Each SSTable has its own index. It can be sparse: it will not keep each key-offset pair in the index,
 but it will store keys every N bytes. We can do this because SSTable files are sorted and read-only. When we need to find a
 key, we find its offset or closest minimal to this key. After we can load part of the file into memory and find the value for the key.
 
@@ -164,18 +157,17 @@ key, we find its offset or closest minimal to this key. After we can load part o
 
 #### Flush
 
-When memtable becomes bigger than some threshold, core component puts it to the flush queue and initializes a new memtable.
-Flusher is a background process which checks the queue and dumps memtables as sstables to a disk.
+When the memtable becomes bigger than some threshold, the core component puts it to the flush queue and initializes a new memtable. 
+The flusher is a background process that checks the queue and dumps memtables as SSTables to disk.
 
 #### Compaction
 
-It's a periodical background process.
-It merges small SSTable files into a bigger one and removes old key-value pairs which can be removed.
+It's a periodical background process that merges small SSTable files into a larger one and removes old key-value pairs that can be removed.
 
 #### SSTables storage
 
-It's a disk storage. On start-up time `mdb` checks this folder and registers all files and builds indexes.
-Files are read-only, `mdb` never change them. It can only merge them into a big one file, but without modifying old files.
+It's a disk storage. During start-up, mdb checks this folder, registers all files, and builds indexes. 
+Files are read-only; mdb never changes them. It can only merge them into a larger file, but without modifying old files.
 
 #### File format
 
@@ -193,13 +185,13 @@ entry_type:
 ##### Configuration
 
 ```none
-CompactionEnabled     bool  // you can disable background compaction process
-MinimumFilesToCompact int  // how many files does it need to start compaction process
+CompactionEnabled     bool  // Enable/disable the background compaction process
+MinimumFilesToCompact int   // How many files are needed to start the compaction process
 MaxMemtableSize       int64 // max size for memtable
-MaxCompactFileSize    int64 // do not compact files bigger than this size
-SSTableReadBufferSize int  // read buffer size: database will build indexes each
-                           // <SSTableReadBufferSize> bytes. If you want to have non-sparse index
-                           // put 1 here
+MaxCompactFileSize    int64 // Do not compact files bigger than this size
+SSTableReadBufferSize int   // Read buffer size: the database will build indexes every
+                            // <SSTableReadBufferSize> bytes. If you want to have a non-sparse index
+                            // put 1 here
 ```
 
 #### performance test mode

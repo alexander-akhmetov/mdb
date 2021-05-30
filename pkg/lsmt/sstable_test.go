@@ -15,7 +15,7 @@ import (
 )
 
 func TestListSSTables(t *testing.T) {
-	// test that listSSTables returns list of files with path
+	// test that listSSTables returns the list of paths to the files with ss tables
 	// and they are ordered by modification time
 	testutils.SetUp()
 	defer testutils.Teardown()
@@ -31,13 +31,12 @@ func TestListSSTables(t *testing.T) {
 		os.OpenFile(filepath.Join(sstablesDir, f), os.O_RDONLY|os.O_CREATE, 0600)
 	}
 
-	// expFiles with ordered by last modified time and with full path
 	expFiles := []utils.FileInfo{
-		utils.FileInfo{
+		{
 			Name: ".test/sstables-test/another.sstable",
 			Size: 0,
 		},
-		utils.FileInfo{
+		{
 			Name: ".test/sstables-test/file.sstable",
 			Size: 0,
 		},
@@ -46,7 +45,8 @@ func TestListSSTables(t *testing.T) {
 }
 
 func TestSSTableGet(t *testing.T) {
-	// test that SSTable reads content from file
+	// test that SSTable reads content from the file
+
 	// create two key-value pairs manually and read them with .Get method
 	testutils.SetUp()
 	defer testutils.Teardown()

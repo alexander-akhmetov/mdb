@@ -12,7 +12,7 @@ import (
 
 func TestAppendBinaryToFile(t *testing.T) {
 	// test appendBinaryToFile
-	// file must exists
+	// file must exist
 	testutils.SetUp()
 	defer testutils.Teardown()
 
@@ -30,11 +30,11 @@ func TestAppendBinaryToFile(t *testing.T) {
 		Value: value,
 	})
 
-	// check that keys are added
-	expKeysMap := [][2]string{[2]string{key, value}}
+	// check that the keys are added
+	expKeysMap := [][2]string{{key, value}}
 	testutils.AssertKeysInFile(t, filename, expKeysMap)
 
-	// check binary content
+	// check the binary content
 	bytes := testutils.ReadFileBinary(filename)
 	expBytes := []byte{0x0, 0x0, 0x0, 0x0, 0x8, 0x0, 0x0, 0x0, 0xa, 0x74, 0x65, 0x73, 0x74, 0x2d, 0x6b, 0x65, 0x79, 0x74, 0x65, 0x73, 0x74, 0x2d, 0x76, 0x61, 0x6c, 0x75, 0x65}
 	assert.Equal(t, expBytes, bytes)
@@ -68,7 +68,7 @@ func TestNewBinFileScanner(t *testing.T) {
 	readBufferSize := 1024
 	scanner := newBinFileScanner(f, readBufferSize)
 
-	// we have only one key-value in the file
+	// we have only one key-value pair in the file
 	e, err := scanner.ReadEntry()
 	assert.Nil(t, err)
 	assert.Equal(t, &entry.DBEntry{Key: key, Value: value}, e)

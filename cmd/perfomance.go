@@ -8,26 +8,26 @@ import (
 	"github.com/alexander-akhmetov/mdb/pkg"
 )
 
-// now it's better to start performance test with external output filtering:
+// It's better to start the performance test with external output filtering:
 //
 // go run db/*.go -p 2>&1 |  grep -v 'DEBUG'
 //
-// Otherwise it will print a lot of additional log informarion: per each inserted key.
-// Later I will add log filtering to the performance test.
+// Otherwise, it will print a lot of additional log information. For example, a log line for each inserted key.
+// TODO: Add log filtering to the performance test.
 
-// with this counter we will calculate how many
-// inserts were made for the previous second
+// With this counter, we will calculate how many
+// inserts were made in the previous second.
 var counter = 0
 
-// This is an infinite loop which just writes random keys to the storage
-// and every second it prints output: how many keys were inserted for the previous second,
-// for example:
+// This is an infinite loop that writes random keys to the storage
+// and prints the output every second: how many keys were inserted.
+// For example:
 //
 // 2018/08/17 07:21:39.010602 Inserted: 13141
 // 2018/08/17 07:21:40.010651 Inserted: 13169
 //
-// It doesn't check are the inserted values valid or not.
-// It just inserts key as fast as it can, nothing else.
+// It doesn't check whether the inserted values are valid.
+// It simply inserts keys as fast as possible, nothing more.
 func performanceTest(db mdb.Storage, maxKeys int, checkKeys bool) {
 	go printStatsEverySecond()
 
@@ -57,8 +57,8 @@ func performanceTest(db mdb.Storage, maxKeys int, checkKeys bool) {
 
 }
 
-// printStatsEverySecond prints counter value and sets it to 0,
-// then it sleeps for a second and does the same, again and again :)
+// printStatsEverySecond prints the counter value, resets it,
+// sleeps for a second, and repeats the process.
 func printStatsEverySecond() {
 	for true == true {
 		log.Printf("%sInserted: %v%s", colorGreen, counter, colorNeutral)

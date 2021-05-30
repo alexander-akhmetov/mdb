@@ -31,7 +31,7 @@ func TestStorage(t *testing.T) {
 	storage.Set(testKey, testValue)
 
 	expData := [][2]string{
-		[2]string{testKey, testValue},
+		{testKey, testValue},
 	}
 	testutils.AssertKeysInFile(t, storage.memtable.logFilename, expData)
 
@@ -56,8 +56,8 @@ func TestStorageSSTable(t *testing.T) {
 	testutils.CreateFileWithKeyValues(
 		".test/lsmt_data/sstables/0.sstable",
 		[][2]string{
-			[2]string{key1, value1},
-			[2]string{key2, value2},
+			{key1, value1},
+			{key2, value2},
 		},
 	)
 
@@ -79,7 +79,7 @@ func TestStorageSSTable(t *testing.T) {
 }
 
 func TestStorageSSTablesOrdering(t *testing.T) {
-	// we will create many sstables and check that they will be used correctly
+	// we will create many sstables and check that they are used correctly
 	testutils.SetUp()
 	defer testutils.Teardown()
 
@@ -90,20 +90,20 @@ func TestStorageSSTablesOrdering(t *testing.T) {
 	value2 := "v2"
 	oldValue2 := "1"
 
-	// let's create two sstables and check that we use them in correct order
+	// let's create two sstables and check that we use them in the correct order
 	testutils.CreateFileWithKeyValues(
 		".test/lsmt_data/sstables/0.sstable",
 		[][2]string{
-			[2]string{key1, oldValue1},
-			[2]string{key2, oldValue2},
+			{key1, oldValue1},
+			{key2, oldValue2},
 		},
 	)
 
 	testutils.CreateFileWithKeyValues(
 		".test/lsmt_data/sstables/1.sstable",
 		[][2]string{
-			[2]string{key1, value1},
-			[2]string{key2, value2},
+			{key1, value1},
+			{key2, value2},
 		},
 	)
 
@@ -138,16 +138,16 @@ func TestStorageAOLogRestoring(t *testing.T) {
 	testutils.CreateFileWithKeyValues(
 		".test/lsmt_data/log.aolog",
 		[][2]string{
-			[2]string{key1, value1},
-			[2]string{key2, value2},
+			{key1, value1},
+			{key2, value2},
 		},
 	)
 
 	testutils.CreateFileWithKeyValues(
 		".test/lsmt_data/sstables/1544288836377002.sstable",
 		[][2]string{
-			[2]string{"k1", "0"},
-			[2]string{"k2", "0"},
+			{"k1", "0"},
+			{"k2", "0"},
 		},
 	)
 
@@ -182,15 +182,15 @@ func TestStorageMemtablesToFlush(t *testing.T) {
 
 	// let's create aolog_tf, it should be the latest version of our keys
 	data := [][2]string{
-		[2]string{key1, value1},
-		[2]string{key2, value2},
+		{key1, value1},
+		{key2, value2},
 	}
 	testutils.CreateFileWithKeyValues(".test/lsmt_data/aolog_tf/1.aolog", data)
 
 	// sstable file will have older values
 	data = [][2]string{
-		[2]string{key1, oldValue1},
-		[2]string{key2, oldValue2},
+		{key1, oldValue1},
+		{key2, oldValue2},
 	}
 	testutils.CreateFileWithKeyValues(".test/lsmt_data/sstables/0.sstable", data)
 
@@ -244,14 +244,14 @@ func TestStorageMemtableMustBeMoreImportantThanMemtablesToFlush(t *testing.T) {
 
 	// let's create aolog_tf, it should be the latest version of our keys
 	data := [][2]string{
-		[2]string{key1, value1},
-		[2]string{key2, value2},
+		{key1, value1},
+		{key2, value2},
 	}
 	testutils.CreateFileWithKeyValues(".test/lsmt_data/log.aolog", data)
 
 	data = [][2]string{
-		[2]string{key1, oldValue1},
-		[2]string{key2, oldValue2},
+		{key1, oldValue1},
+		{key2, oldValue2},
 	}
 	testutils.CreateFileWithKeyValues(".test/lsmt_data/aolog_tf/0.aolog", data)
 
@@ -288,8 +288,8 @@ func TestStorageMemtablesToFlushOnly(t *testing.T) {
 	testutils.CreateFileWithKeyValues(
 		".test/lsmt_data/aolog_tf/0.aolog",
 		[][2]string{
-			[2]string{key1, value1},
-			[2]string{key2, value2},
+			{key1, value1},
+			{key2, value2},
 		},
 	)
 
@@ -430,16 +430,16 @@ func TestStorageCompaction(t *testing.T) {
 	testutils.CreateFileWithKeyValues(
 		".test/lsmt_data/sstables/0.sstable",
 		[][2]string{
-			[2]string{key1, oldValue1},
-			[2]string{key2, oldValue2},
+			{key1, oldValue1},
+			{key2, oldValue2},
 		},
 	)
 
 	testutils.CreateFileWithKeyValues(
 		".test/lsmt_data/sstables/1.sstable",
 		[][2]string{
-			[2]string{key1, value1},
-			[2]string{key2, value2},
+			{key1, value1},
+			{key2, value2},
 		},
 	)
 
@@ -489,24 +489,24 @@ func TestStorageCompactionForOldFiles(t *testing.T) {
 	testutils.CreateFileWithKeyValues(
 		".test/lsmt_data/sstables/0.sstable",
 		[][2]string{
-			[2]string{key1, oldestValue1},
-			[2]string{key2, oldestValue2},
+			{key1, oldestValue1},
+			{key2, oldestValue2},
 		},
 	)
 
 	testutils.CreateFileWithKeyValues(
 		".test/lsmt_data/sstables/1.sstable",
 		[][2]string{
-			[2]string{key1, oldValue1},
-			[2]string{key2, oldValue2},
+			{key1, oldValue1},
+			{key2, oldValue2},
 		},
 	)
 
 	testutils.CreateFileWithKeyValues(
 		".test/lsmt_data/sstables/2.sstable",
 		[][2]string{
-			[2]string{key1, value1},
-			[2]string{key2, value2},
+			{key1, value1},
+			{key2, value2},
 		},
 	)
 
@@ -536,8 +536,8 @@ func TestStorageCompactionForOldFiles(t *testing.T) {
 	assert.False(t, testutils.IsFileExists(".test/lsmt_data/sstables/0.sstable"))
 
 	expData := [][2]string{
-		[2]string{key1, oldValue1},
-		[2]string{key2, oldValue2},
+		{key1, oldValue1},
+		{key2, oldValue2},
 	}
 	testutils.AssertKeysInFile(t, expectedNewSSTablePath, expData)
 }

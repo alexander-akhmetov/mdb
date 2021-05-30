@@ -9,15 +9,15 @@ import (
 	"github.com/alexander-akhmetov/mdb/pkg/utils"
 )
 
-// flusher is a struct which holds information about
-// memtable which we flush to a disk
+// flusher is a struct that holds information about
+// the memtable we flush to disk.
 type flusher struct {
 	sstablesDir string
 	memtable    *memtable
 }
 
-// flush dumps data from flusher.memtable to a new SSTable on a disk
-// SSTable's name defined as a "{flusher.timestamp}.sstable"
+// flush dumps data from flusher.memtable to a new SSTable on disk.
+// The SSTable's name is defined as "{flusher.timestamp}.sstable".
 func (f *flusher) flush() string {
 	log.Printf("[DEBUG] Starting memtable flushing process for aolog=%s", f.memtable.logFilename)
 	file, err := os.OpenFile(f.filename(), os.O_APPEND|os.O_WRONLY, filePermissions)
@@ -46,8 +46,8 @@ func (f *flusher) flush() string {
 	return file.Name()
 }
 
-// filename returns full path to an SSTable file
-// in which flusher writes memtable's data
+// filename returns the full path to an SSTable file
+// where flusher writes the memtable's data.
 func (f *flusher) filename() string {
 	return filepath.Join(
 		f.sstablesDir,

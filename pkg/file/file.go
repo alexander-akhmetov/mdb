@@ -10,12 +10,12 @@ import (
 
 var writeMutex = &sync.Mutex{}
 
-// Storage holds all information in a file
+// Storage holds all information in a file.
 type Storage struct {
 	Filename string
 }
 
-// Set saves given key and value
+// Set saves the given key and value.
 func (s *Storage) Set(key string, value string) {
 	writeMutex.Lock()
 	defer writeMutex.Unlock()
@@ -23,7 +23,7 @@ func (s *Storage) Set(key string, value string) {
 	utils.AppendToFile(s.Filename, strToAppend)
 }
 
-// Get returns a value by given key and boolean indicator that key exists
+// Get returns a value for a given key and a boolean indicator of whether the key exists.
 func (s *Storage) Get(key string) (string, bool) {
 	line, found := utils.FindLineByKeyInFile(s.Filename, key)
 	if found {
@@ -33,7 +33,7 @@ func (s *Storage) Get(key string) (string, bool) {
 	return "", false
 }
 
-// Start initializes Storage and creates file if needed
+// Start initializes Storage and creates a file if needed.
 func (s *Storage) Start() {
 	log.Println("[INFO] Starting file storage")
 	utils.StartFileDB()

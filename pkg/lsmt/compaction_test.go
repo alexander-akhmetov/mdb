@@ -10,7 +10,7 @@ import (
 
 func TestCompactionWithoutFiles(t *testing.T) {
 	// test compact() with only one file
-	// it should do nothing
+	// it should not do anything
 	testutils.SetUp()
 	defer testutils.Teardown()
 
@@ -39,14 +39,14 @@ func TestSimpleCompaction(t *testing.T) {
 	testutils.CreateFileWithKeyValues(
 		".test/lsmt_data/sstables/0.sstable",
 		[][2]string{
-			[2]string{"k1", "v1"},
-			[2]string{"k2", "v2"},
+			{"k1", "v1"},
+			{"k2", "v2"},
 		},
 	)
 	testutils.CreateFileWithKeyValues(
 		".test/lsmt_data/sstables/1.sstable",
 		[][2]string{
-			[2]string{"k1", "v11"},
+			{"k1", "v11"},
 		},
 	)
 	testutils.CreateFileWithKeyValues(".test/lsmt_data/sstables/2.sstable", [][2]string{})
@@ -64,30 +64,30 @@ func TestSimpleCompaction(t *testing.T) {
 	assert.Equal(t, ".test/lsmt_data/sstables/tmp/1.sstable", c)
 
 	expData := [][2]string{
-		[2]string{"k1", "v11"},
-		[2]string{"k2", "v2"},
+		{"k1", "v11"},
+		{"k2", "v2"},
 	}
 	testutils.AssertKeysInFile(t, ".test/lsmt_data/sstables/tmp/1.sstable", expData)
 }
 
 func TestSimpleCompactionWithSameKeys(t *testing.T) {
 	// test compaction process with same keys in different files:
-	// it should save only latest keys
+	// it should save only the latest key-value pairs.
 	testutils.SetUp()
 	defer testutils.Teardown()
 
 	testutils.CreateFileWithKeyValues(
 		".test/lsmt_data/sstables/0.sstable",
 		[][2]string{
-			[2]string{"k1", "01"},
-			[2]string{"k2", "02"},
+			{"k1", "01"},
+			{"k2", "02"},
 		},
 	)
 	testutils.CreateFileWithKeyValues(
 		".test/lsmt_data/sstables/1.sstable",
 		[][2]string{
-			[2]string{"k1", "11"},
-			[2]string{"k2", "22"},
+			{"k1", "11"},
+			{"k2", "22"},
 		},
 	)
 
@@ -104,8 +104,8 @@ func TestSimpleCompactionWithSameKeys(t *testing.T) {
 	assert.Equal(t, ".test/lsmt_data/sstables/tmp/1.sstable", c)
 
 	expData := [][2]string{
-		[2]string{"k1", "11"},
-		[2]string{"k2", "22"},
+		{"k1", "11"},
+		{"k2", "22"},
 	}
 	testutils.AssertKeysInFile(t, ".test/lsmt_data/sstables/tmp/1.sstable", expData)
 }
@@ -119,19 +119,19 @@ func TestComplexCompaction(t *testing.T) {
 	testutils.CreateFileWithKeyValues(
 		".test/lsmt_data/sstables/0.sstable",
 		[][2]string{
-			[2]string{"k1", "1"},
-			[2]string{"k2", "2"},
-			[2]string{"k3", "3"},
-			[2]string{"k3", "33"},
+			{"k1", "1"},
+			{"k2", "2"},
+			{"k3", "3"},
+			{"k3", "33"},
 		},
 	)
 	testutils.CreateFileWithKeyValues(
 		".test/lsmt_data/sstables/1.sstable",
 		[][2]string{
-			[2]string{"k1", "11"},
-			[2]string{"k3", "333"},
-			[2]string{"k5", "5"},
-			[2]string{"k6", "6"},
+			{"k1", "11"},
+			{"k3", "333"},
+			{"k5", "5"},
+			{"k6", "6"},
 		},
 	)
 	testutils.CreateFileWithKeyValues(".test/lsmt_data/sstables/2.sstable", [][2]string{})
@@ -139,11 +139,11 @@ func TestComplexCompaction(t *testing.T) {
 	compact(".test/lsmt_data/sstables/", ".test/lsmt_data/sstables/tmp/", 2, defaultMaxCompactFileSize)
 
 	expData := [][2]string{
-		[2]string{"k1", "11"},
-		[2]string{"k2", "2"},
-		[2]string{"k3", "333"},
-		[2]string{"k5", "5"},
-		[2]string{"k6", "6"},
+		{"k1", "11"},
+		{"k2", "2"},
+		{"k3", "333"},
+		{"k5", "5"},
+		{"k6", "6"},
 	}
 	testutils.AssertKeysInFile(t, ".test/lsmt_data/sstables/tmp/1.sstable", expData)
 }
@@ -157,10 +157,10 @@ func TestCompactionWithOneEmptyFile(t *testing.T) {
 	assert.True(t, testutils.IsFileExists(".test/lsmt_data/sstables/0.sstable"))
 
 	secondFileKeys := [][2]string{
-		[2]string{"k1", "11"},
-		[2]string{"k3", "333"},
-		[2]string{"k5", "5"},
-		[2]string{"k6", "6"},
+		{"k1", "11"},
+		{"k3", "333"},
+		{"k5", "5"},
+		{"k6", "6"},
 	}
 	testutils.CreateFileWithKeyValues(".test/lsmt_data/sstables/1.sstable", secondFileKeys)
 	testutils.CreateFileWithKeyValues(".test/lsmt_data/sstables/2.sstable", [][2]string{})
@@ -178,8 +178,8 @@ func TestCompactionWithEmptySecondFile(t *testing.T) {
 	defer testutils.Teardown()
 
 	firstFileKeys := [][2]string{
-		[2]string{"k1", "1"},
-		[2]string{"k3", "3"},
+		{"k1", "1"},
+		{"k3", "3"},
 	}
 	testutils.CreateFileWithKeyValues(".test/lsmt_data/sstables/0.sstable", firstFileKeys)
 	testutils.CreateFileWithKeyValues(".test/lsmt_data/sstables/1.sstable", [][2]string{})
